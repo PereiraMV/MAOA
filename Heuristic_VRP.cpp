@@ -303,52 +303,52 @@ void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector
 	}
 
 
-int main(int argc, char**argv){
-	string name, nameext, nameextsol;
-  int i,j,k,NB_ITER;
-  
-  clock_t time_initial, /* Time initial en micro-secondes */
-          time_final;   /* Time final en micro-secondes */
-  float   time_cpu;     /* Time total en secondes */
-	srand(time(0));
-  //////////////
-  //////  DATA
-  //////////////
-	
-  if(argc!=3){
-    cerr<<"usage: "<<argv[0]<<" <vrp file name (without .vrp)> <nb_iteration>"<<endl;
-    cerr<<"       0: only greedy / nb>0: greedy+TwoOptDescent on nb iterations"<<endl;
-    return 1;
-  }
-  name=argv[1];
-  nameext=name+".vrp";
-  nameextsol=name+".sol2";
-  NB_ITER=atoi(argv[2]);
+//int main(int argc, char**argv){
+//	string name, nameext, nameextsol;
+//  int i,j,k,NB_ITER;
+//  
+//  clock_t time_initial, /* Time initial en micro-secondes */
+//          time_final;   /* Time final en micro-secondes */
+//  float   time_cpu;     /* Time total en secondes */
+//	srand(time(0));
+//  //////////////
+//  //////  DATA
+//  //////////////
+//	
+//  if(argc!=3){
+//    cerr<<"usage: "<<argv[0]<<" <vrp file name (without .vrp)> <nb_iteration>"<<endl;
+//    cerr<<"       0: only greedy / nb>0: greedy+TwoOptDescent on nb iterations"<<endl;
+//    return 1;
+//  }
+//  name=argv[1];
+//  nameext=name+".vrp";
+//  nameextsol=name+".sol2";
+//  NB_ITER=atoi(argv[2]);
 
-  
-  ifstream fic(nameext.c_str());
+//  
+//  ifstream fic(nameext.c_str());
 
-  if (fic==NULL){
-    cerr<<"file "<<nameext<<" not found"<<endl;
-    return 1;
-  }
+//  if (fic==NULL){
+//    cerr<<"file "<<nameext<<" not found"<<endl;
+//    return 1;
+//  }
 
-  VRP_Graph G;
+//  VRP_Graph G;
 
-  G.read_undirected_VRP(fic);
+//  G.read_undirected_VRP(fic);
 
-  fic.close();
+//  fic.close();
 
-  //////////////
-  //////  Glouton HEURISTIC
-  //////////////
-  time_initial = clock ();
+//  //////////////
+//  //////  Glouton HEURISTIC
+//  //////////////
+//  time_initial = clock ();
 
-  vector<vector<pair<int,int> > > curr_sol;
-  curr_sol.resize(G.nbTruck);
-  vector<list<pair<int,int> > >solution;
+//  vector<vector<pair<int,int> > > curr_sol;
+//  curr_sol.resize(G.nbTruck);
+//  vector<list<pair<int,int> > >solution;
 
-  LocalResearch(G,curr_sol,solution,NB_ITER);
+//  LocalResearch(G,curr_sol,solution,NB_ITER);
   
 //  First_affectation(G,curr_sol);
 
@@ -444,5 +444,5 @@ int main(int argc, char**argv){
 
 
 //La solution trouvé peut être différente de celle avant car 2 OPt varie aléatoirement
-	return 0;
-}
+//	return 0;
+//}

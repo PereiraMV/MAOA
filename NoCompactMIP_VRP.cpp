@@ -6,6 +6,7 @@
 
 #include"Graph.h"
 #include "MengerCutSeparation.h"
+#include "Heuristic_VRP.h"
 
 #define epsilon 0.0001
 
@@ -464,7 +465,53 @@ int main (int argc, char**argv){
   cout<<"Wrote LP on file"<<endl;
   cplex.exportModel("sortie.lp");
   #endif
+  
+    #ifdef OUTPUT
+  cout<<"Wrote LP on file"<<endl;
+  cplex.exportModel("sortie.lp");
+  #endif
 
+  //START FROM A HEURISTIC SOLUTION
+  
+  vector<vector<pair<int,int> > > curr_sol;
+  //curr_sol is the affectation
+  curr_sol.resize(G.nbTruck);
+  vector<list<pair<int,int> > >solution;
+  //solution is the affectation and also salesman done, vector=all trucks;list=all pairs in a truck.
+	int NB_ITER=100;
+  LocalResearch(G,curr_sol,solution,NB_ITER);
+
+  // Translate from encoding by a list of nodes to variable x
+  vector<vector<int> > startx;
+  startx.resize(G.nb_nodes);
+
+  for (i=0;i<G.nb_nodes;i++)  startx[i].resize(G.nb_nodes);
+
+  for (i=0;i<G.nb_nodes;i++)
+    for (j=i+1;j<G.nb_nodes;j++)
+      startx[i][j]=0;
+	for (vector<list<pair<int,int> > >::const_iterator itsol=solution.begin();itsol!=solution.end();itsol++){
+		list<pair<int,int> >::const_iterator pair;
+		for(pair=itsol->begin();pair!=itsol->end() ;pair++) {
+		  if (pair->first<pair->second)
+		    startx[pair->first][pair->second]=1;
+		  else
+		    startx[pair->second][pair->first]=1;
+		}
+		
+	}
+
+ 
+  IloNumVarArray startVar(env);
+  IloNumArray startVal(env);
+  for (i=0;i<G.nb_nodes;i++)
+    for (j=i+1;j<G.nb_nodes;j++) {
+             startVar.add(x[i][j]);
+             startVal.add(startx[i][j]); // startx is your heuristic values
+         }
+  cplex.addMIPStart(startVar, startVal, IloCplex::MIPStartCheckFeas);
+  startVal.end();
+	startVar.end();
   if ( !cplex.solve() ) {
     env.error() << "Failed to optimize LP" << endl;
     exit(1);

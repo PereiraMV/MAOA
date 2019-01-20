@@ -59,7 +59,7 @@ CCFLAGS = $(CCOPT) -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -I$(LEMONINCDIR)
 
 
 
-all: CompactMIP_VRP NoCompactMIP_VRP Heuristic_VRP Heuristic_TSPfunc.o
+all: CompactMIP_VRP NoCompactMIP_VRP Heuristic_VRP.o Heuristic_TSPfunc.o
 
 Graph.o: Graph.cpp Graph.h
 	$(CCC) -c $(CCFLAGS) $(CCLNDIRS) -c Graph.cpp -o Graph.o
@@ -73,16 +73,15 @@ CompactMIP_VRP: CompactMIP_VRP.o  Graph.o
 MengerCutSeparation.o: MengerCutSeparation.cpp Graph.h
 	$(CCC) -c $(CCFLAGS) $(CCLNDIRS) -c MengerCutSeparation.cpp
 	
-NoCompactMIP_VRP.o: NoCompactMIP_VRP.cpp
+NoCompactMIP_VRP.o: NoCompactMIP_VRP.cpp Graph.h Heuristic_VRP.h Heuristic_TSPfunc.h
 	$(CCC) -c $(CCFLAGS) $(CCLNDIRS) NoCompactMIP_VRP.cpp
 
-NoCompactMIP_VRP: NoCompactMIP_VRP.o  Graph.o MengerCutSeparation.o
-	$(CCC) $(CCFLAGS) $(CCLNDIRS) NoCompactMIP_VRP.o Graph.o MengerCutSeparation.o  -o NoCompactMIP_VRP $(CCLNFLAGS)
+NoCompactMIP_VRP: NoCompactMIP_VRP.o  Graph.o MengerCutSeparation.o Heuristic_VRP.o Heuristic_TSPfunc.o
+	$(CCC) $(CCFLAGS) $(CCLNDIRS) NoCompactMIP_VRP.o Graph.o Heuristic_TSPfunc.o MengerCutSeparation.o Heuristic_VRP.o  -o NoCompactMIP_VRP $(CCLNFLAGS)
 
-Heuristic_VRP: Graph.o Heuristic_VRP.o 
-	g++ $(CCFLAGS) $(CCLNDIRS) Heuristic_VRP.o Graph.o Heuristic_TSPfunc.o -o Heuristic_VRP  $(CCLNFLAGS)
 
-Heuristic_VRP.o: Heuristic_VRP.cpp Graph.h Heuristic_TSPfunc.h 
+
+Heuristic_VRP.o: Heuristic_VRP.cpp Graph.h Heuristic_TSPfunc.h Heuristic_VRP.h
 	g++ -c $(CCFLAGS) $(CCLNDIRS) Heuristic_VRP.cpp 
 	
 Heuristic_TSPfunc.o:Heuristic_TSPfunc.cpp Graph.h Heuristic_TSPfunc.h 
