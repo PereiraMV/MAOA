@@ -219,6 +219,14 @@ void Reduce_T(VRP_Graph &G, vector<vector<pair<int,int> > >& sol,int NB_TRY){
 	//Ici on essaye de réduire le nombre de tournée si il est supérieur au nombre disponible nbTrucks.
 	
 }
+void GeneticAlgorithm(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER){
+
+	vector<vector<pair<int,int> > >:: iterator it;
+	First_affectation(G,curr_sol);
+	int TotalSol=0;
+	Create_TSPGraph(G,curr_sol,NB_ITER,TotalSol,solution);
+
+}
 void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER){
 	int i,j,k;
 	vector<vector<pair<int,int> > >:: iterator it;
@@ -239,7 +247,7 @@ void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector
 		cout<<endl;
 	}
 	vector<vector<pair<int,int> > > currBest_sol=curr_sol;
-	int NB_GEN=50; // le nombre de generation
+	int NB_GEN=80; // le nombre de generation
 	int NB_IND=100; // le nombre d'individu par génération
 	int bestSolFath=TotalSol,bestSolSon=TotalSol,indGen=0;
 	
@@ -261,7 +269,6 @@ void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector
 				bestSolSon=sol;
 				currBest_sol=current_sol2;
 				solution=temp_solution;
-
 			}
 
 		
@@ -297,8 +304,20 @@ void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector
 		cout<<endl;
 	}
 
-	Create_TSPGraph(G,currBest_sol,NB_ITER,TotalSol,solution);
-	cout<<TotalSol<<endl;
+	//Create_TSPGraph(G,currBest_sol,NB_ITER,TotalSol,solution);
+	//cout<<TotalSol<<endl;
+	  float Tot=0;
+
+	for (it4=solution.begin();it4!=solution.end();it4++){
+		list<pair<int,int > >:: const_iterator it3;
+		for(it3=it4->begin();it3!=it4->end();it3++){
+			Tot+=G.lengthTSP(it3->first,it3->second);
+				  cout<< it3->first<<" with "<<it3->second<<", ";
+		}
+		cout<<endl;
+	}
+
+	cout<<"Toltal somme=" << Tot<<endl;
 	
 	}
 

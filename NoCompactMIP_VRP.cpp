@@ -28,7 +28,7 @@ ILOUSERCUTCALLBACK2(UsercutMengerCutSeparation,VRP_Graph &, G,vector<vector<IloN
 
   int i;
   list<C_link *>::const_iterator it;
-  IloRange ViolatedCst;
+  vector<IloRange > ViolatedCst;
   
   // Put the linear relaxation values on the edges of graph G
 
@@ -53,7 +53,11 @@ ILOUSERCUTCALLBACK2(UsercutMengerCutSeparation,VRP_Graph &, G,vector<vector<IloN
     //cout << "Adding constraint : "<<endl;
     //cout<< ViolatedCst << endl;
     #endif
-    add(ViolatedCst,IloCplex::UseCutPurge);   // UseCutForce UseCutPurge UseCutFilter
+
+    for(vector<IloRange >::iterator j=ViolatedCst.begin();j!=ViolatedCst.end();j++){
+    	add(*j,IloCplex::UseCutPurge);   // UseCutForce UseCutPurge UseCutFilter
+    }
+    
   }
   #ifdef OUTPUT
     else {
@@ -472,7 +476,7 @@ int main (int argc, char**argv){
   #endif
 
   //START FROM A HEURISTIC SOLUTION
-  
+  srand(time(NULL));
   vector<vector<pair<int,int> > > curr_sol;
   //curr_sol is the affectation
   curr_sol.resize(G.nbTruck);
@@ -480,7 +484,6 @@ int main (int argc, char**argv){
   //solution is the affectation and also salesman done, vector=all trucks;list=all pairs in a truck.
 	int NB_ITER=100;
   LocalResearch(G,curr_sol,solution,NB_ITER);
-
   // Translate from encoding by a list of nodes to variable x
   vector<vector<int> > startx;
   startx.resize(G.nb_nodes);

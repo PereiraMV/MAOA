@@ -6,6 +6,6 @@
 #include<ctime>
 #include"Graph.h"
 
-bool  find_ViolatedMengerCutCst(IloEnv env, VRP_Graph & G,  vector<vector<IloNumVar> >& x,  IloRange & ViolatedCst);
+bool  find_ViolatedMengerCutCst(IloEnv env, VRP_Graph & G,  vector<vector<IloNumVar> >& x,  vector<IloRange > & ViolatedCst);
 
 
