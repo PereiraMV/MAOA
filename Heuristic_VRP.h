@@ -10,3 +10,4 @@
 
 void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER);
 
+void GeneticAlgorithm(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER);

@@ -483,7 +483,8 @@ int main (int argc, char**argv){
   vector<list<pair<int,int> > >solution;
   //solution is the affectation and also salesman done, vector=all trucks;list=all pairs in a truck.
 	int NB_ITER=100;
-  LocalResearch(G,curr_sol,solution,NB_ITER);
+	GeneticAlgorithm(G,curr_sol,solution,NB_ITER);
+  //LocalResearch(G,curr_sol,solution,NB_ITER);
   // Translate from encoding by a list of nodes to variable x
   vector<vector<int> > startx;
   startx.resize(G.nb_nodes);

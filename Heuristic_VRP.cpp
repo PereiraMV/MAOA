@@ -187,9 +187,31 @@ void Change_affectation(VRP_Graph &G, vector<vector<pair<int,int> > >& sol){
 	while (s_truck==f_truck ){
 		s_truck= rand()%sol.size();
 	}
-	int ind_Client=rand()%sol[f_truck].size();
+
 	int chang=1,j;// egal a 1 tant qu'un changement n'a pas été fait'
 	vector<int>ind(sol[s_truck].size());
+	int ind_Client=rand()%sol[f_truck].size();
+	vector<int>indi(sol[f_truck].size());
+	for (int y=0;y<sol[f_truck].size();y++){
+		indi[y]=y;
+	}
+
+	while(chang!=0 && indi.size()>0){
+		int indRand=rand()%indi.size();
+		ind_Client=indi[indRand];
+		indi.erase(indi.begin()+indRand);
+		if(sumDemand_Truck(sol[s_truck])+sol[f_truck][ind_Client].first<=G.maxCap){
+			pair<int,int>  tempo=sol[f_truck][ind_Client];
+			sol[f_truck].erase(sol[f_truck].begin()+ind_Client);
+			sol[s_truck].push_back(tempo);
+			return;
+		}
+	}
+	
+	chang=1;
+	ind_Client=rand()%sol[f_truck].size();
+	
+	
 	for (j=0;j<sol[s_truck].size();j++){
 		ind[j]=j;
 	}
@@ -212,6 +234,30 @@ void Change_affectation(VRP_Graph &G, vector<vector<pair<int,int> > >& sol){
 	
 	
 }
+void Change_affectation2(VRP_Graph &G, vector<vector<pair<int,int> > >& sol){
+	int f_truck,s_truck;
+	int lg=sol.size();
+	f_truck= rand()%lg;//on choisit deux tournée à modifier au hasard
+	s_truck= rand()%lg;
+	//cout<<f_truck <<"  "<<s_truck<<"autre"<<lg<<endl;
+	
+	if (G.nbTruck<=1) return ;
+	
+	while (sol[f_truck].size()<=2  ){
+		f_truck= rand()%sol.size();
+	}
+	
+	while (s_truck==f_truck  ){
+		s_truck= rand()%sol.size();
+	}
+	int ind_Client=rand()%sol[f_truck].size();
+
+	pair<int,int>  tempo=sol[f_truck][ind_Client];
+	sol[f_truck].erase(sol[f_truck].begin()+ind_Client);
+	sol[s_truck].push_back(tempo);
+	return;
+
+}
 
 
 
@@ -219,12 +265,145 @@ void Reduce_T(VRP_Graph &G, vector<vector<pair<int,int> > >& sol,int NB_TRY){
 	//Ici on essaye de réduire le nombre de tournée si il est supérieur au nombre disponible nbTrucks.
 	
 }
-void GeneticAlgorithm(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER){
 
+void GeneticAlgorithm(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER){
+	int NB_GEN=300; // le nombre de generation
+	int NB_IND=100; // le nombre d'individu par génération
+	int NB_FATHER=20;
+	
 	vector<vector<pair<int,int> > >:: iterator it;
 	First_affectation(G,curr_sol);
 	int TotalSol=0;
-	Create_TSPGraph(G,curr_sol,NB_ITER,TotalSol,solution);
+	Create_TSPGraph(G,curr_sol,NB_ITER,TotalSol,solution);//first solution
+	//generate first population from the first one.
+	
+	vector<vector<vector<pair<int,int> > > > Sons;
+	vector<vector<vector<pair<int,int> > > > Fath;
+	Fath.resize(NB_FATHER);
+	vector<vector<pair<int,int> > > curr_sol2;
+	
+	vector<int > eval_Sons;
+	int sol;
+	vector<list<pair<int,int> > > solution2;
+
+	
+	//create Sons
+	for (int i=0;i<NB_IND;i++){
+		sol=0;
+		curr_sol2 = curr_sol;
+
+		Change_affectation2(G,curr_sol2);
+		
+		Create_TSPGraph(G,curr_sol2,NB_ITER,sol,solution2);
+		for(it=curr_sol2.begin();it!=curr_sol2.end();it++){
+			if (sumDemand_Truck(*it)>G.maxCap){
+				sol+=3*G.maxCap;
+			}
+		}
+		Sons.push_back(curr_sol2);
+		eval_Sons.push_back(sol);
+		
+	}
+	
+	
+	// Sons become the fathers
+	vector<int >eval_Fath;
+	for(int g=0;g<NB_FATHER;g++) eval_Fath.push_back(10000);
+	
+	
+
+	for (int itSons=0;itSons!=Sons.size();itSons++){
+		if (eval_Sons[itSons]>eval_Fath[0]) continue;
+		for (int itFath=1;itFath<Fath.size();itFath++){
+			if (eval_Sons[itSons]>eval_Fath[itFath]){
+			
+				eval_Fath.insert(eval_Fath.begin()+itFath,eval_Sons[itSons]);
+				Fath.insert(Fath.begin()+itFath,Sons[itSons]);
+				eval_Fath.erase(eval_Fath.begin());
+				Fath.erase(Fath.begin());
+				
+				
+				break;
+			}
+			if (itFath==(Fath.size()-1)){
+
+				if (eval_Sons[itSons]<eval_Fath[itFath]){
+					eval_Fath.insert(eval_Fath.end(),eval_Sons[itSons]);
+					Fath.insert(Fath.end(),Sons[itSons]);
+					eval_Fath.erase(eval_Fath.begin());
+					Fath.erase(Fath.begin());
+				}
+			}
+			
+		}
+	}
+	
+	int nbiter=1;
+	
+	while (nbiter<NB_GEN){
+		for (int i=0;i<NB_IND;i++){
+			int father=rand()%NB_FATHER;
+			curr_sol2 = Fath[father];
+			sol=0;
+
+			
+			Change_affectation2(G,curr_sol2);
+			
+			
+			
+			Create_TSPGraph(G,curr_sol2,NB_ITER,sol,solution2);
+			for(it=curr_sol2.begin();it!=curr_sol2.end();it++){
+				if (sumDemand_Truck(*it)>G.maxCap){
+					sol+=3*G.maxCap;
+				}
+			}
+
+			Sons[i]=curr_sol2;
+			eval_Sons[i]=sol;
+			//cout<<sol<<endl;
+		}
+	
+	
+	
+		for (int itSons=0;itSons!=Sons.size();itSons++){
+			if (eval_Sons[itSons]>eval_Fath[0]) continue;
+//			cout<<"aaaaa"<<eval_Sons[itSons]<<endl;
+			for (int itFath=1;itFath<Fath.size();itFath++){
+				if (eval_Sons[itSons]>eval_Fath[itFath]){
+
+					eval_Fath.insert(eval_Fath.begin()+itFath,eval_Sons[itSons]);
+					Fath.insert(Fath.begin()+itFath,Sons[itSons]);
+					eval_Fath.erase(eval_Fath.begin());
+					Fath.erase(Fath.begin());
+
+				
+				
+					break;
+				}
+				if (itFath==(Fath.size()-1)){
+					if (eval_Sons[itSons]<eval_Fath[itFath]){
+						eval_Fath.insert(eval_Fath.end(),eval_Sons[itSons]);
+						Fath.insert(Fath.end(),Sons[itSons]);
+						eval_Fath.erase(eval_Fath.begin());
+						Fath.erase(Fath.begin());
+
+						
+					}
+				}
+			
+			}
+		}
+		
+	
+		nbiter+=1;
+	}
+	TotalSol=0;
+		vector<list<pair<int,int> > > solution3;
+	Create_TSPGraph(G,Fath[NB_FATHER-1],3*NB_ITER,TotalSol,solution3);
+	solution=solution3;
+	cout << "Le meilleur trouvé"<<TotalSol<<endl;
+	
+
 
 }
 void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector<list<pair<int,int> > > & solution,int NB_ITER){
@@ -247,8 +426,8 @@ void LocalResearch(VRP_Graph &G,vector<vector<pair<int,int> > >& curr_sol,vector
 		cout<<endl;
 	}
 	vector<vector<pair<int,int> > > currBest_sol=curr_sol;
-	int NB_GEN=80; // le nombre de generation
-	int NB_IND=100; // le nombre d'individu par génération
+	int NB_GEN=200; // le nombre de generation
+	int NB_IND=200; // le nombre d'individu par génération
 	int bestSolFath=TotalSol,bestSolSon=TotalSol,indGen=0;
 	
 	
